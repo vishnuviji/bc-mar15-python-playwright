@@ -14,9 +14,8 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-	
       - name: Checkout the code
-	uses: actions/checkout@v4
+        uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -26,25 +25,14 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r local-requirements.txt
-          pip install -e .
+          pip install pytest pytest-html
 
-      - name: Run your tests
-        run: pytest
+      - name: Run tests and generate HTML report
+        run: pytest --html=target/reports/report.html
 
-    - name: Upload reports #To upload the reports in reports folder
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: test-result
-        path: target/reports
-        
-    - name: Deploy to GitHub Pages #To deploy the reports page in github pages (here give write permision in settings -- general-- give permission to read and write)
-      if: always() #instead of always we can use if success -- if i want to exectue only during success
-      uses: peaceiris/actions-gh-pages@v4
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: target/reports #path of the report page
-
-        env:
-          HOME: /root
+      - name: Upload HTML report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: html-report
+          path: target/reports/report.html
